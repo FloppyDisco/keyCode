@@ -70,6 +70,7 @@ command.add(nil, {
       submit = function(text, item)
         if item then
           command.perform(item.command)
+          command.history:add_command(item.command)
         end
       end,
       suggest = function(text)
