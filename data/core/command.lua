@@ -151,6 +151,26 @@ function command.get_all_valid()
       table.insert(res, name)
     end
   end
+  -- get command history
+  for i,name in ipairs(command.history:get_history()) do
+    local cmd = command.map[name]
+    -- we should not need to check predicates,
+    -- because all valid commands have already been tested
+    if memorized_predicates[cmd.predicate] then
+      -- remove any duplicate command from res
+      local cmd_idx = nil
+      for i,c in ipairs(res) do
+        if c == name then
+          cmd_idx = i
+        end
+      end
+      if cmd_idx then
+        table.remove(res, cmd_idx)
+      end
+      -- add command to front of list
+      table.insert(res, 1, name)
+    end
+  end
   return res
 end
 
