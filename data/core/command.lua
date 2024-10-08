@@ -110,6 +110,33 @@ function command.prettify_name(name)
 end
 
 
+--- a circular buffer to store recently used commands
+---@type core.command.command[]
+command.history = {}
+command.history._buffer_size = 10
+command.history._index = 1
+
+--- adds a command to the history buffer
+---@param command_name string
+function command.history:add_command(command_name)
+  local index = command.history._index
+  command.history[index] = command_name
+  command.history._index = index < command.history._buffer_size and index + 1 or 1
+end
+
+--- returns an reverse-ordered list of the most recent commands
+---@return string[]
+function command.history:get_history()
+  local history = {}
+  for i = command.history._index, command.history._buffer_size do
+    table.insert(history, command.history[i])
+  end
+  for i = 1, command.history._index-1 do
+    table.insert(history, command.history[i])
+  end
+  return history
+end
+
 ---Returns all the commands that can be executed (their predicates evaluate to true).
 ---@return core.command.command_name[]
 function command.get_all_valid()
