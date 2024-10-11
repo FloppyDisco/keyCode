@@ -739,12 +739,6 @@ command.add(
     view:set_selection(view.hovered_item)
   end,
 
-  ["treeview:select-and-open"] = function()
-    if view.hovered_item then
-      view:set_selection(view.hovered_item)
-      command.perform "treeview:open"
-    end
-  end,
 
   ["treeview:collapse"] = function()
     if view.selected_item then
@@ -981,7 +975,7 @@ keymap.add {
   ["escape"]      = "treeview:deselect",
   ["delete"]      = "treeview:delete",
   ["ctrl+return"] = "treeview:new-folder",
-  ["lclick"]      = "treeview:select-and-open",
+  ["lclick"]      = "treeview:open",
   ["mclick"]      = "treeview:select",
   ["ctrl+lclick"] = "treeview:new-folder"
 }
