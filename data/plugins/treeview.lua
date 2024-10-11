@@ -626,17 +626,17 @@ local function is_primary_project_folder(path)
 end
 
 
-local function treeitem() return view.hovered_item or view.selected_item end
 
 
-menu:register(function() return core.active_view:is(TreeView) and treeitem() end, {
+
+menu:register(function() return core.active_view:is(TreeView) and view.selected_item end, {
   { text = "Open in System", command = "treeview:open-in-system" },
   ContextMenu.DIVIDER
 })
 
 menu:register(
   function()
-    local item = treeitem()
+    local item = view.selected_item
     return core.active_view:is(TreeView) and item and not is_project_folder(item.abs_filename)
   end,
   {
@@ -647,7 +647,7 @@ menu:register(
 
 menu:register(
   function()
-    local item = treeitem()
+    local item = view.selected_item
     return core.active_view:is(TreeView) and item and item.type == "dir"
   end,
   {
@@ -658,7 +658,7 @@ menu:register(
 
 menu:register(
   function()
-    local item = treeitem()
+    local item = view.selected_item
     return core.active_view:is(TreeView) and item
       and not is_primary_project_folder(item.abs_filename)
       and is_project_folder(item.abs_filename)
@@ -797,7 +797,7 @@ command.add(
 
 command.add(
   function()
-    local item = treeitem()
+    local item = view.selected_item
     return item ~= nil and (core.active_view == view or menu.show_context_menu), item
   end, {
   ["treeview:delete"] = function(item)
@@ -926,7 +926,7 @@ command.add(
 local projectsearch = pcall(require, "plugins.projectsearch")
 if projectsearch then
   menu:register(function()
-    local item = treeitem()
+    local item = view.selected_item
     return item and item.type == "dir"
   end, {
     { text = "Find in directory", command = "treeview:search-in-directory" }
@@ -941,7 +941,7 @@ if projectsearch then
 end
 
 command.add(function()
-    local item = treeitem()
+    local item = view.selected_item
     return item
            and not is_primary_project_folder(item.abs_filename)
            and is_project_folder(item.abs_filename), item
