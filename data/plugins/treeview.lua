@@ -285,6 +285,13 @@ function TreeView:on_mouse_left()
   self.hovered_item = nil
 end
 
+local on_mouse_pressed = TreeView.on_mouse_pressed
+function TreeView:on_mouse_pressed(...)
+  self.selected_item = self.hovered_item
+  self.hovered_item = nil
+  on_mouse_pressed(self,...)
+end
+
 
 function TreeView:update()
   -- update width
