@@ -557,6 +557,18 @@ end
 -- Add a context menu to the treeview
 local menu = ContextMenu()
 
+local show_menu = menu.show
+function menu:show(...)
+  view.scrollable = false
+  show_menu(self,...)
+end
+
+local hide_menu = menu.hide
+function menu:hide(...)
+  view.scrollable = true
+  hide_menu(self,...)
+end
+
 local on_view_mouse_pressed = RootView.on_view_mouse_pressed
 local on_mouse_moved = RootView.on_mouse_moved
 local root_view_update = RootView.update
