@@ -52,7 +52,6 @@ function TreeView:new()
   self.cache = {}
   self.tooltip = { x = 0, y = 0, begin = 0, alpha = 0 }
   self.last_scroll_y = 0
-
   self.item_icon_width = 0
   self.item_text_spacing = 0
 end
@@ -625,10 +624,6 @@ local function is_primary_project_folder(path)
   return core.project_dir == path
 end
 
-
-
-
-
 menu:register(function() return core.active_view:is(TreeView) and view.selected_item end, {
   { text = "Open in System", command = "treeview:open-in-system" },
   ContextMenu.DIVIDER
@@ -768,10 +763,14 @@ command.add(
   end,
 
   ["treeview-context:show"] = function()
-    if view.hovered_item then
-      menu:show(core.root_view.mouse.x, core.root_view.mouse.y)
-      return
-    end
+    -- if view.hovered_item then
+    --   menu:show(core.root_view.mouse.x, core.root_view.mouse.y)
+    --   return
+    -- end
+    -- i don't think the right click is being handled here,
+    -- commenting this out did not break anything
+    -- the menu is still opened at the mouse click. i think right clicks
+    -- are being handled in the context menu?
 
     local item = view.selected_item
     if not item then return end
