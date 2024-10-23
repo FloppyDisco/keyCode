@@ -2,201 +2,339 @@
 local core = require "core"
 local View = require "core.view"
 local RootView = require "core.rootview"
+local EmptyView = require "core.emptyview"
 local CommandView = require "core.commandview"
 local ContextMenu = require "core.contextmenu"
+local style = require "core.style"
+local common = require "core.common"
 local command = require "core.command"
 local keymap = require "core.keymap"
 local TreeView = require "core.treeview"
+local ToolBar = require "plugins.toolbarview"
 
--- |------------------------|
--- |        FileTree        |
--- |------------------------|
-
+-- options
 local display_side = "left" -- or "right"
+local toolbar_location = "top" -- or "bottom"
+-- local toolbar_location = "bottom"
+
+-- |-----------------------------|
+-- |        SectionHeader        |
+-- |-----------------------------|
+
+local Section = View:extend()
 
 
--- :add_section("section title", view)
-  -- splits the filetree with another view
-  --
-
--- init()
-  -- adds a section for each project directory
-
-
-  --   Init
--- --------
-local filetree = View()
-
-
-filetree.node = core.root_view:get_active_node():split(display_side, nil, {x = true}, true)
-
--- add toolbar
--- add section for each project_dir
--- for each project
-
-function filetree:add_section(section_title, view)
-
-  filetree.node = filetree.node:split("up", view, {x=true}, true)
-  -- filetree.node = filetree.node:split("up", nil)
-
+function Section:new(title)
+  Section.super.new(self)
+  self.title = title
+  self.visible = true
+  self.init_size = true
+  self.tooltip = false
+  self.size.y = 40
 end
+
+function Section:draw()
+  local x, y = self:get_content_offset()
+  local w, h = self.size.x, self.size.y
+  renderer.draw_rect(x, y, w, h, style.accent)
+end
+
+
+
+
+function Section:update()
+   print("section height", self.size.y)
+   self.size.y = 40
+
+   -- self:move_towards(self.size, "y", style.font:get_height() + style.padding.y * 2)
+   -- Section.super.update(self)
+end
+
+function Section:set_target_size(axis, value)
+   if axis == "y" then
+      self.target_size = 30
+      return true
+   end
+end
+
+function Section:on_mouse_pressed(button, x, y, clicks)
+  -- if not self.visible then return end
+  -- local caught = Section.super.on_mouse_pressed(self, button, x, y, clicks)
+  -- if caught then return caught end
+  -- core.set_active_view(core.last_active_view)
+  -- if self.hovered_item and command.is_valid(self.hovered_item.command) then
+  --   command.perform(self.hovered_item.command)
+  -- end
+  -- return true
+end
+
+
+
+
+
+
+
+
+
+
+
+
+-- |------------------------|
+-- |        Explorer        |
+-- |------------------------|
+
+local toolbar = ToolBar()
+local toolbar2 = ToolBar()
+
+local Explorer = View:extend()
+
+function Explorer:new()
+    Explorer.super.new( self )
+
+    self.node = core.root_view:get_active_node():split( display_side, toolbar, {y = true})
+    -- create an option for the toolbar to be on top or bottom
+end
+
+
+function Explorer:draw()
+  self:draw_background(style.background)
+end
+
+
+
+function Explorer:add_view(view, ...)
+  local split_direction = "down"
+  -- if adding the first section split based on toolbar_location
+  if self.node.views[1] and self.node.views[1]:is(ToolBar) then
+    split_direction = toolbar_location == "top" and "down" or "up"
+  end
+  self.node = self.node:split( split_direction, view, ...)
+end
+
+function Explorer:add_section( title, view )
+  -- add a section header
+  local section_header = Section(title)
+  self:add_view(section_header, {})
+
+--   add section to a list to check for mouse clicks
+
+
+   -- local draw_view = view.draw
+   -- local view_get_content_offset = view.get_content_offset
+   -- local section_height = 35
+
+   -- function view:draw()
+   --    draw_view(self)
+   --    local x, y = view_get_content_offset(self)
+   --    local w, h = self.size.x, section_height
+   --    renderer.draw_rect(x, y, w, h, style.accent)
+   -- end
+
+   -- function view:get_content_offset()
+   --    local x, y = view_get_content_offset(self)
+   --    return x, y + section_height
+   -- end
+
+
+  -- add the view
+  self:add_view(view, {y=false, x=true}, true)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- |--------------------|
+-- |        Init        |
+-- |--------------------|
+
+local explorer = Explorer()
+
+
+
+
+local folder = TreeView()
+folder.items = { {
+    label = "1",
+    icon = { "D", "d" },
+    expanded = true,
+    items = { {
+        label = "Folder",
+        icon = { "D", "d" },
+        items = { {
+            label = "another",
+            icon = "f"
+         }, {
+            label = "Folder2",
+            icon = { "D", "d" },
+            items = { {
+                label = "nope",
+                icon = "f"
+             } }
+         } }
+     }, {
+        label = "world",
+        icon = "f"
+     }, {
+        label = "this is an item with a really long label that will overrun the width"
+     } }
+ }, {
+    label = "again",
+    icon = "f"
+ }, {
+    label = "hello",
+    icon = { "D", "d" },
+    expanded = true,
+    items = { {
+        label = "Folder",
+        icon = { "D", "d" },
+        items = { {
+            label = "another",
+            icon = "f"
+         }, {
+            label = "Folder2",
+            icon = { "D", "d" },
+            items = { {
+                label = "nope",
+                icon = "f"
+             } }
+         } }
+     }, {
+        label = "world",
+        icon = "f"
+     }, {
+        label = "this is an item with a really long label that will overrun the width"
+     } }
+ }, {
+    label = "again",
+    icon = "f"
+ } }
+
+local folder2 = TreeView()
+folder2.items = { {
+    label = "2",
+    icon = { "D", "d" },
+    expanded = true,
+    items = { {
+        label = "Folder",
+        icon = { "D", "d" },
+        items = { {
+            label = "another",
+            icon = "f"
+         }, {
+            label = "Folder2",
+            icon = { "D", "d" },
+            items = { {
+                label = "nope",
+                icon = "f"
+             } }
+         } }
+     }, {
+        label = "world",
+        icon = "f"
+     }, {
+        label = "this is an item with a really long label that will overrun the width"
+     } }
+ }, {
+    label = "again",
+    icon = "f"
+ }, {
+    label = "hello",
+    icon = { "D", "d" },
+    expanded = true,
+    items = { {
+        label = "Folder",
+        icon = { "D", "d" },
+        items = { {
+            label = "another",
+            icon = "f"
+         }, {
+            label = "Folder2",
+            icon = { "D", "d" },
+            items = { {
+                label = "nope",
+                icon = "f"
+             } }
+         } }
+     }, {
+        label = "world",
+        icon = "f"
+     }, {
+        label = "this is an item with a really long label that will overrun the width"
+     } }
+ }, {
+    label = "again",
+    icon = "f"
+ } }
+
+
+ explorer:add_section("section1",folder)
+ explorer:add_section("section2",folder2)
 
 
 -- selecting an item in one section will need to deselect any item in other sections
 
-
-
-
--- local Section = View:extend()
--- filetree.section = Section
-
--- function Section:new()
---   Section.super.new(self)
---   self.scrollable = false
---   self.visible = true
---   self.init_size = true
---   self.target_size = 200
---   self.item_icon_width = 0
---   self.item_text_spacing = 0
+-- function Explorer:new()
+--   Explorer.super.new(self)
 -- end
 
-
--- function Section:draw()
--- end
-
-
-local section_tree = TreeView()
--- filetree.tree_spacing = 40
-
-
-section_tree.items = {
-    {
-        label= "hello",
-        icon={"D","d"},
-        expanded = true,
-        items = {
-            {
-                label = "Folder",
-                icon={"D","d"},
-                items = {
-                    {
-                        label = "another",
-                        icon = "f",
-                    },
-                    {
-                        label = "Folder2",
-                        icon={"D","d"},
-                        items = {
-                            {
-                                label = "nope",
-                                icon = "f",
-                            }
-                        }
-                    },
-                }
-            },
-            {
-                label = "world",
-                icon = "f"
-            },
-            {
-                label = "this is an item with a really long label that will overrun the width",
-            }
-        }
-    },
-    {
-        label = "again",
-        icon="f"
-    },
-    {
-        label= "hello",
-        icon={"D","d"},
-        expanded = true,
-        items = {
-            {
-                label = "Folder",
-                icon={"D","d"},
-                items = {
-                    {
-                        label = "another",
-                        icon = "f",
-                    },
-                    {
-                        label = "Folder2",
-                        icon={"D","d"},
-                        items = {
-                            {
-                                label = "nope",
-                                icon = "f",
-                            }
-                        }
-                    },
-                }
-            },
-            {
-                label = "world",
-                icon = "f"
-            },
-            {
-                label = "this is an item with a really long label that will overrun the width",
-            }
-        }
-    },
-    {
-        label = "again",
-        icon="f"
-    }
-}
-
-
-
-filetree:add_section("project", section_tree)
-
---   filetree commands
+--   explorer commands
 -- ---------------------
 
-local previous_view
+-- local previous_view
 
-command.add(nil, {
-  ["filetree:toggle"] = function()
-    section_tree.visible = not section_tree.visible
-    if not section_tree.visible and core.active_view:is(section_tree) then
-      local previous_view
-      if core.last_active_view:is(CommandView) then
-        previous_view = core.root_view:get_primary_node().active_view
-      else
-        previous_view = core.last_active_view
-      end
-      core.set_active_view(previous_view)
-    end
-  end,
+-- command.add( nil, {
+--     ["explorer:toggle"] = function()
+--         file_tree.visible = not file_tree.visible
+--         if not file_tree.visible and core.active_view:is( file_tree ) then
+--             local previous_view
+--             if core.last_active_view:is( CommandView ) then
+--                 previous_view = core.root_view:get_primary_node().active_view
+--             else
+--                 previous_view = core.last_active_view
+--             end
+--             core.set_active_view( previous_view )
+--         end
+--     end,
 
-  ["filetree:toggle-focus"] = function()
-    if not core.active_view:is(section_tree) then
-      if core.active_view:is(CommandView) then
-        previous_view = core.last_active_view
-      else
-        previous_view = core.active_view
-      end
-      if not previous_view then
-        previous_view = core.root_view:get_primary_node().active_view
-      end
-      core.set_active_view(section_tree)
-      if(not section_tree.visible)then
-        section_tree.visible = true
-      end
-      if not section_tree.selected_item then
-        section_tree:set_selection_by_index(1)
-      end
-    else
-      core.set_active_view(
-        previous_view or core.root_view:get_primary_node().active_view
-      )
-    end
-  end
-})
+--     ["explorer:toggle-focus"] = function()
+--         if not core.active_view:is( file_tree ) then
+--             if core.active_view:is( CommandView ) then
+--                 previous_view = core.last_active_view
+--             else
+--                 previous_view = core.active_view
+--             end
+--             if not previous_view then
+--                 previous_view = core.root_view:get_primary_node().active_view
+--             end
+--             core.set_active_view( file_tree )
+--             if (not file_tree.visible) then
+--                 file_tree.visible = true
+--             end
+--             if not file_tree.selected_item then
+--                 file_tree:set_selection_by_index( 1 )
+--             end
+--         else
+--             core.set_active_view( previous_view or core.root_view:get_primary_node().active_view )
+--         end
+--     end
+--  } )
 
--- --   filetree context menu
+-- --   explorer context menu
 -- -- -------------------------
 -- local menu = ContextMenu()
 
@@ -300,17 +438,10 @@ command.add(nil, {
 --   }
 -- )
 
-
---   filetree toolbar
+--   explorer toolbar
 -- --------------------
 
-
-
---   filetree items
+--   explorer items
 -- ------------------
 
-
-
-
-
-return filetree
+-- return explorer
