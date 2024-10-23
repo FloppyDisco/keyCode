@@ -259,6 +259,8 @@ function ContextMenu:draw()
   core.root_view:defer_draw(self.draw_context_menu, self)
 end
 
+
+local red = {common.color "#fF0000"}
 ---Draws the context menu.
 function ContextMenu:draw_context_menu()
   if not self.items then return end
@@ -269,16 +271,16 @@ function ContextMenu:draw_context_menu()
     by - border_width,
     bw + (border_width * 2),
     bh + (border_width * 2),
-    style.divider
+    style.divider, 5
   )
-  renderer.draw_rect(bx, by, bw, bh, style.background3)
+  renderer.draw_rect(bx, by, bw, bh, style.background3, 5)
 
   for i, item, x, y, w, h in self:each_item() do
     if item == DIVIDER then
       renderer.draw_rect(x, y + divider_padding * SCALE, w, divider_width, style.divider)
     else
       if i == self.selected then
-        renderer.draw_rect(x, y, w, h, style.selection)
+        renderer.draw_rect(x, y, w, h, style.selection, 5)
       end
 
       common.draw_text(style.font, style.text, item.text, "left", x + style.padding.x, y, w, h)
