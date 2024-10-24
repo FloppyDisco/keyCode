@@ -25,12 +25,10 @@ local View = require "core.view"
   }
 
   if an item has an 'items' property then it will be treated as an expandable obj,
-  if no expanded property is passed it will default to true
+  if no 'expanded' property is passed it will default to true
     if it does not, it will be treated as a leaf
     if it does not, any 'expanded' property will be ignored
 ]]
-
-local treeview_size_interval = 140
 
 local TreeView = View:extend()
 
