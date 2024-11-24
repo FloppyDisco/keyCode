@@ -759,7 +759,8 @@ function core.init()
   cur_node = cur_node.b
   cur_node:split("up", core.nag_view, {y = true})
   cur_node = cur_node.b
-  cur_node = cur_node:split("down", core.command_view, {y = true})
+  cur_node:split("up", core.command_view, {y = true})
+  cur_node = cur_node.b
   cur_node = cur_node:split("down", core.status_view, {y = true})
 
   -- Load default commands first so plugins can override them
